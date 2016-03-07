@@ -28,13 +28,13 @@ void output(){//输出剩余空间
     step++; 
 }
    
-void memFree(unsigned char *header,int size){//释放从*P 开始的一段内存 
+void memFree(unsigned char *header,int size){//释放从*P开始的一段内存 
     list<MemBlock>::iterator itr=freeList.begin(); 
 	int start=header-Mem; 
     for(itr;itr!=freeList.end();itr++) 
 		if ((*itr).start>=start){//寻找插入位置 
         if (start+size<(*itr).start) 
-            freeList.insert(itr, MemBlock(start,size));//插入内存段到列表列表 
+            freeList.insert(itr, MemBlock(start,start+size));//插入内存段到列表
         else (*itr).start=start;//向后合并两个内存段 
         break; 
     }      
