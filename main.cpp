@@ -17,7 +17,29 @@ struct MemBlock{//内存块,start和end分别表示的是在内存池中的下标区间，左闭右开。
     MemBlock(int a=0,int b=0):start(a),end(b){} 
 };  
 list<MemBlock> freeList;//空闲内存链表 
-  
+
+void output(){//输出剩余空间 
+    static int step=0; 
+    printf("step %d\n",step); 
+    list<MemBlock>::iterator itr=freeList.begin(); 
+    for(itr;itr!=freeList.end();itr++){
+        if((*itr).start<TOTAL_MEM) printf("[%d,%d)\n",(*itr).start,(*itr).end); 
+    } 
+    step++; 
+}
+   
+void memFree(unsigned char *header,int size){//释放从*P 开始的一段内存 
+    list<MemBlock>::iterator itr=freeList.begin(); 
+	int start=header-Mem; 
+    for(itr;itr!=freeList.end();itr++) 
+		if ((*itr).start>=start){//寻找插入位置 
+        if (start+size<(*itr).start) 
+            freeList.insert(itr, MemBlock(start,size));//插入内存段到列表列表 
+        else (*itr).start=start;//向后合并两个内存段 
+        break; 
+    }      
+}
+
 unsigned char* memMalloc(int size)//申请内存，如果申请到则返回内存的头指针。失败则返回零。 
 { 
     list<MemBlock>::iterator itr=freeList.begin(); 
@@ -32,28 +54,6 @@ unsigned char* memMalloc(int size)//申请内存，如果申请到则返回内存的头指针。失败
         } 
     } 
     return 0;//失败，返回0; 
-}
- 
-void memFree(unsigned char *header,int size){//释放从*P 开始的一段内存 
-    list<MemBlock>::iterator itr=freeList.begin(); 
-	int start=header-Mem; 
-    for(itr;itr!=freeList.end();itr++) 
-		if ((*itr).start>=start){//寻找插入位置 
-        if (start+size<(*itr).start) 
-            freeList.insert(itr, MemBlock(start,size));//插入内存段到列表列表 
-        else (*itr).start=start;//向后合并两个内存段 
-        break; 
-    }      
-} 
-
-void output(){//输出剩余空间 
-    static int step=0; 
-    printf("step %d\n",step); 
-    list<MemBlock>::iterator itr=freeList.begin(); 
-    for(itr;itr!=freeList.end();itr++){
-        if((*itr).start<TOTAL_MEM) printf("[%d,%d)\n",(*itr).start,(*itr).end); 
-    } 
-    step++; 
 } 
 
 int main(int argc, const char * argv[]) { 
